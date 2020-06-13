@@ -28,6 +28,9 @@ dependencies:
   cloud_firestore: ^0.12.9+5
   intl: ^0.16.1
   google_sign_in: ^4.4.4
+  flutter_speed_dial: ^1.2.5
+  fluttertoast: ^4.0.0
+
 
 
 dev_dependencies:

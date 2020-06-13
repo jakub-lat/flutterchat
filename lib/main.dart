@@ -4,6 +4,7 @@ import 'chat.dart';
 import 'login.dart';
 import 'home.dart';
 import 'settings.dart';
+import 'create_chat.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,12 +27,18 @@ class MyApp extends StatelessWidget {
         ),
       ),
       initialRoute: '/',
-      routes: {
-        '/': (context)=>Login(),
-        '/home': (context)=>Home(),
-        '/chat': (context)=>Chats(),
-        '/account': (context)=>Settings()
-      }
+      onGenerateRoute: (RouteSettings settings) {
+        print('build route for ${settings.name}');
+        var routes = <String, WidgetBuilder>{
+          '/': (context)=>Login(),
+          '/home': (context)=>Home(),
+          '/chat': (context) => Chats(settings.arguments),
+          '/account': (context) => Settings(),
+          '/create': (context) => CreateChat()
+        };
+        WidgetBuilder builder = routes[settings.name];
+        return MaterialPageRoute(builder: (ctx) => builder(ctx));
+      },
     );
   }
 }

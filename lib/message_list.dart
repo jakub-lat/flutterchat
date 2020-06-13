@@ -4,10 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'db.dart';
 
-
 class MessageList extends StatefulWidget {
-  final String channel;
-  MessageList({this.channel});
+  final DocumentSnapshot channel;
+  final DocumentSnapshot guild;
+  MessageList(this.guild, this.channel);
 
   @override
   MessageListState createState() => MessageListState();
@@ -27,15 +27,22 @@ class MessageListState extends State<MessageList> {
     var formatter = new DateFormat('dd.MM HH:mm');
     return Container(
       padding: EdgeInsets.all(5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          //Text(formatter.format(date.toDate()), style: TextStyle(fontSize: 12, color: Colors.grey)),
-          Row(children: <Widget>[
-            Text(msg['author'] + ': ', style: TextStyle(fontWeight: FontWeight.bold)),
-            Text(msg['content'])
-          ]),
-      ])
+      child: FutureBuilder<DocumentSnapshot>(
+        future: db.getUser(msg['author']).get(),
+        builder: (context, result) {
+          if(result.connectionState == ConnectionState.waiting) return Center(child: LinearProgressIndicator());
+          if(result.hasError || !result.hasData || !result.data.exists) return Text('ERROR');
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(formatter.format(date.toDate()), style: TextStyle(fontSize: 12, color: Colors.grey)),
+              Row(children: <Widget>[
+                Text(result.data['username'] + ': ', style: TextStyle(fontWeight: FontWeight.bold)),
+                Text(msg['content'])
+              ]),
+          ]);
+        }
+      )
     );
   }
 
@@ -43,9 +50,8 @@ class MessageListState extends State<MessageList> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: db.getMessages(widget.channel).snapshots(),
+      stream: db.messageList(widget.guild.documentID, widget.channel.documentID).snapshots(),
       builder: (context, snapshot) {
-        print(snapshot.connectionState);
         if(snapshot.hasError) return Text('Error');
         if(snapshot.connectionState == ConnectionState.waiting) return Center(child: CircularProgressIndicator());
         return ListView.separated(

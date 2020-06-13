@@ -38,7 +38,7 @@ class _HomeState extends State<Home> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
-            title: Text('Community')
+            title: Text('Chats')
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.sentiment_satisfied),
